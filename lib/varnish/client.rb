@@ -3,14 +3,16 @@ require 'net/http'
 
 module Varnish
   class Client
-    def initialize(host, port, target)
+    def initialize(host, port, target, options={})
       @http   = Net::HTTP.new(host, port)
       @target = URI.parse(target.to_s)
+      @auth_header = options.delete(:auth_header)
     end
 
     def purge(cmd)
       req = Purge.new(cmd)
       req['Host'] = @target.host
+      req[@auth_header] = 'true' if @auth_header
       res = @http.request(req)
       res.code == '200'
     end
