@@ -11,7 +11,7 @@ module Varnish
 
     def purge(cmd)
       req = Purge.new(cmd)
-      req['Host'] = @target.host
+      req['Host'] = host_with_port(@target)
       req[@auth_header] = 'true' if @auth_header
       res = @http.request(req)
       res.code == '200'
@@ -32,6 +32,13 @@ module Varnish
       REQUEST_HAS_BODY  = false
       RESPONSE_HAS_BODY = true
     end
+    
+    def host_with_port(uri)
+      address = uri.host
+      address << ":#{uri.port}" if uri.port
+      address
+    end
+
   end
 end
 
