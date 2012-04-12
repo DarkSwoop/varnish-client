@@ -1,4 +1,3 @@
-
 require 'net/http'
 
 module Varnish
@@ -35,10 +34,9 @@ module Varnish
     
     def host_with_port(uri)
       address = uri.host
-      address << ":#{uri.port}" if uri.port
+      address += ":#{uri.port}" if uri.port && uri.port != 80
       address
     end
-
   end
 end
 
