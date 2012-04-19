@@ -8,14 +8,19 @@ module Varnish
       @auth_header = options.delete(:auth_header)
     end
 
-    def purge(cmd)
+    def purge(cmd, options={})
+      options.symbolize_keys!
       req = Purge.new(cmd)
-      req['Host'] = host_with_port(@target)
+      req['Host'] = if options[:host]
+        host_with_port(URI.parse(options[:host].to_s))
+      else
+        host_with_port(@target)
+      end
       req[@auth_header] = 'true' if @auth_header
       res = @http.request(req)
       res.code == '200'
     end
-
+    
     def fetch(path, headers = {})
       req = Net::HTTP::Get.new(path, headers)
       req['Host'] = @target.host
