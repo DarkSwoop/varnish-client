@@ -8,6 +8,11 @@ module Varnish
       @auth_header = options.delete(:auth_header)
     end
 
+    # possible options:
+    #   - scope:
+    #     - all: expires over all hosts
+    #     - single: expires for a single host
+    #   - host: hostname like www.example.com
     def purge(cmd, options={})
       options.symbolize_keys!
       req = Purge.new(cmd)
@@ -16,11 +21,11 @@ module Varnish
       else
         host_with_port(@target)
       end
-      req[@auth_header] = 'true' if @auth_header
+      req[@auth_header] = (options[:scope] || 'single') if @auth_header
       res = @http.request(req)
       res.code == '200'
     end
-    
+
     def fetch(path, headers = {})
       req = Net::HTTP::Get.new(path, headers)
       req['Host'] = @target.host
